@@ -176,7 +176,8 @@ https://github.com/OTODESK4193/next-gen-kick
 
 \### サードパーティライセンス
 
-\- \*\*JUCE Framework\*\*: \[GPL v3 / Commercial](https://juce.com/juce-8-licence)
+**JUCE Framework**: [Open Source - AGPLv3]
+https://github.com/juce-framework/JUCE
 
 
 
@@ -209,6 +210,7 @@ https://github.com/OTODESK4193/next-gen-kick
 
 
 ---
+
 
 
 
