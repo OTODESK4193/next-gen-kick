@@ -8,7 +8,7 @@
 
 3層構造（Attack/Body/Sub）、100種類のプリセット、11種類のサチュレーションを搭載した高品質な無料キック音源です。
 
-
+https://github.com/OTODESK4193/next-gen-kick
 
 \[English README](README\_EN.md) | \[マニュアル](docs/manual\_ja.md)
 
@@ -208,5 +208,6 @@
 
 
 ---
+
 
 
