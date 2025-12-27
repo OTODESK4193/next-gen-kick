@@ -11,7 +11,7 @@
 https://github.com/OTODESK4193/next-gen-kick
 
 - ツール本体: [ダウンロード](./WaveTableGenerator.zip)
-- マニュアルPDF: [WTGE マニュアル](./WTGEmaniyuaru.pdf)
+- マニュアルPDF: [マニュアル](./NEXT_GEN_KICK_manual.pdf)
 
 
 
@@ -209,6 +209,7 @@ https://github.com/OTODESK4193/next-gen-kick
 
 
 ---
+
 
 
 
