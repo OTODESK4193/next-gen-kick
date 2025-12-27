@@ -15,7 +15,7 @@ https://github.com/OTODESK4193/next-gen-kick
 
 
 
-!\[Screenshot](docs/screenshots/main.png)
+!\[Screenshot](Next_Gen_Kick_screenshot.jpg)
 
 
 
@@ -209,6 +209,7 @@ https://github.com/OTODESK4193/next-gen-kick
 
 
 ---
+
 
 
 
