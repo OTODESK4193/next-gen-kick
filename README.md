@@ -3,6 +3,9 @@ NEXT GEN KICK v1.2.0
 
 3層構造（Attack/Body/Sub）、100種類のプリセット、そして最新の音響工学に基づいたADAAサチュレーションを搭載した高品質な無料キック専用音源です。
 
+![Next_Gen_Kick_screenshot](https://github.com/user-attachments/assets/cec4d29f-341f-4c85-a85d-a3bb5285e7d7)
+
+
 リポジトリ: https://github.com/OTODESK4193/next-gen-kick
 
 最新版(v1.2.0)ダウンロード: Releases（https://github.com/OTODESK4193/next-gen-kick/releases）
@@ -55,4 +58,5 @@ JUCE Framework: [Open Source - GPLv3]
 X (Twitter): @kijyoumusic
 
 このプラグインがあなたの楽曲制作の助けになれば幸いです。 バグ報告や改善の提案は、GitHubのIssuesまたはXまでお寄せください！
+
 
