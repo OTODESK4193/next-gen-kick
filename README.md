@@ -8,7 +8,7 @@ NEXT GEN KICK v1.2.0
 
 リポジトリ: https://github.com/OTODESK4193/next-gen-kick
 
-最新版(v1.2.0)ダウンロード: Releases（https://github.com/OTODESK4193/next-gen-kick/releases）
+最新版(v1.2.0)ダウンロード: Releases　https://github.com/OTODESK4193/next-gen-kick/releases/tag/v1.2.0
 
 [日本語マニュアルPDF](./NEXT%20GEN%20KICK2.0%20ユーザーマニュアル.pdf)
 
@@ -58,5 +58,6 @@ JUCE Framework: [Open Source - GPLv3]
 X (Twitter): @kijyoumusic
 
 このプラグインがあなたの楽曲制作の助けになれば幸いです。 バグ報告や改善の提案は、GitHubのIssuesまたはXまでお寄せください！
+
 
 
