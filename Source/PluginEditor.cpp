@@ -66,11 +66,48 @@ NextGenKickAudioProcessorEditor::NextGenKickAudioProcessorEditor(NextGenKickAudi
     titleLabel.setFont(juce::Font(26.0f, juce::Font::bold));
     titleLabel.setColour(juce::Label::textColourId, juce::Colours::white);
 
-    // --- Preset Combo Implementation ---
+    // --- Buttons ---
+    addAndMakeVisible(randomButton);
+    randomButton.setButtonText("Random");
+    randomButton.setTooltip(utf8("ランダマイズ"));
+    randomButton.onClick = [this] { audioProcessor.performRandomization(); };
+
+    addAndMakeVisible(undoButton);
+    undoButton.setButtonText("Undo");
+    undoButton.setTooltip(utf8("元に戻す"));
+    undoButton.onClick = [this] { audioProcessor.undoManager.undo(); };
+
+    addAndMakeVisible(redoButton);
+    redoButton.setButtonText("Redo");
+    redoButton.setTooltip(utf8("やり直す"));
+    redoButton.onClick = [this] { audioProcessor.undoManager.redo(); };
+
+    addAndMakeVisible(saveButton);
+    saveButton.setButtonText("Save");
+    saveButton.onClick = [this] {
+        auto fileChooser = std::make_shared<juce::FileChooser>("Save Preset", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory), "*.xml");
+        fileChooser->launchAsync(juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles,
+            [this, fileChooser](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file != juce::File{}) audioProcessor.saveUserPreset(file);
+            });
+        };
+
+    addAndMakeVisible(loadButton);
+    loadButton.setButtonText("Load");
+    loadButton.onClick = [this] {
+        auto fileChooser = std::make_shared<juce::FileChooser>("Load Preset", juce::File::getSpecialLocation(juce::File::userDocumentsDirectory), "*.xml");
+        fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
+            [this, fileChooser](const juce::FileChooser& fc) {
+                auto file = fc.getResult();
+                if (file != juce::File{}) audioProcessor.loadUserPreset(file);
+            });
+        };
+
+    // --- Preset Combo ---
     addAndMakeVisible(presetCombo);
     presetCombo.clear();
 
-    // カテゴリーヘッダーの追加ロジック
     for (int i = 0; i < audioProcessor.presetList.size(); ++i) {
         if (i == 0) presetCombo.addSectionHeading("--- MODERN KICKS ---");
         else if (i == 50) presetCombo.addSectionHeading("--- VINTAGE & DISCO ---");
@@ -177,7 +214,15 @@ NextGenKickAudioProcessorEditor::NextGenKickAudioProcessorEditor(NextGenKickAudi
         utf8("【Cubic】3次多項式。原音のニュアンスを保ちつつ太くするクリーンな歪み。")
     };
     createCombo(satTypeCombo, "satType", "Distort", utf8("歪みタイプ"), utf8("サチュレーションのアルゴリズムを選択します。"), satTypes, satDescs);
-    createButton(hqModeButton, "hqMode", utf8("HQモード"), utf8("2倍オーバーサンプリングを有効化します。高負荷ですが、折り返しノイズを除去し質感を高めます。"));
+
+    juce::StringArray osTypes{ "Off", "2x (Standard)", "4x (High)", "8x (Ultra)" };
+    juce::StringArray osDescs{
+        utf8("【Off】オーバーサンプリングなし。CPU負荷は最低ですが、折り返しノイズが発生する場合があります。"),
+        utf8("【2x】標準モード。バランスの良い設定で、多くのエイリアシングを除去します。"),
+        utf8("【4x】高音質モード。激しい歪みを加える場合に適していますが、CPU負荷が増加します。"),
+        utf8("【8x】最高品質。ほぼ完全にエイリアシングを除去しますが、非常に高いCPU負荷がかかります。")
+    };
+    createCombo(osCombo, "osMode", "Quality", utf8("品質設定"), utf8("オーバーサンプリング倍率。高くすると高域の折り返しノイズが減り、よりクリアな歪みになります。"), osTypes, osDescs);
 
     createSlider(mDriveSlider, "masterDrive", "Drive", utf8("ドライブ"), "x", utf8("歪みの深さ。音量は自動補正されるため、質感の調整に集中できます。"));
     createSlider(mOutSlider, "masterOut", "Volume", utf8("出力音量"), "x", utf8("最終的な出力レベルです。"));
@@ -186,6 +231,12 @@ NextGenKickAudioProcessorEditor::NextGenKickAudioProcessorEditor(NextGenKickAudi
     createSlider(limLookSlider, "limLookahead", "Lookahead", "ms", utf8("先読み"), utf8("リミッターの反応速度。アタックのトランジェントを保護します。"));
     createSlider(mPhaseSlider, "masterPhase", "Phase", utf8("開始位相"), "deg", utf8("全レイヤー共通の波形開始位置。アタックの出音を安定させます。"));
     createSlider(mReleaseSlider, "masterRelease", "Gate", utf8("ゲート"), "s", utf8("ノートオフ後の強制音止め時間（安全装置）。"));
+
+    // Added Master LPF Slider
+    createSlider(masterLPFSlider, "masterLPF", "Hi-Cut", utf8("ハイカット"), "Hz", utf8("最終段のローパスフィルタ。クリックノイズや高域のザラつきを除去します。"), true);
+
+    // CHANGED: Use logo_jpg
+    logoImage = juce::ImageCache::getFromMemory(BinaryData::logo_jpg, BinaryData::logo_jpgSize);
 
     startTimerHz(60);
 }
@@ -226,6 +277,7 @@ void NextGenKickAudioProcessorEditor::createCombo(InfoBarCombo& combo, const juc
     if (paramID == "atkWave") atkWaveAtt = std::make_unique<ComboAtt>(audioProcessor.apvts, paramID, combo);
     else if (paramID == "bodyWave") bodyWaveAtt = std::make_unique<ComboAtt>(audioProcessor.apvts, paramID, combo);
     else if (paramID == "satType") satTypeAtt = std::make_unique<ComboAtt>(audioProcessor.apvts, paramID, combo);
+    else if (paramID == "osMode") osAtt = std::make_unique<ComboAtt>(audioProcessor.apvts, paramID, combo);
 }
 
 void NextGenKickAudioProcessorEditor::createButton(InfoBarButton& button, const juce::String& paramID, const juce::String& nameJP, const juce::String& desc) {
@@ -235,7 +287,6 @@ void NextGenKickAudioProcessorEditor::createButton(InfoBarButton& button, const 
     button.onInfoUpdate = [this](const juce::String& s) { updateInfoBar(s); };
     button.onInfoClear = [this]() { clearInfoBar(); };
     if (paramID == "subTrack") subTrackAtt = std::make_unique<ButtonAtt>(audioProcessor.apvts, paramID, button);
-    else if (paramID == "hqMode") hqModeAtt = std::make_unique<ButtonAtt>(audioProcessor.apvts, paramID, button);
 }
 
 void NextGenKickAudioProcessorEditor::updateInfoBar(const juce::String& text, bool addKeyTrackInfo) {
@@ -332,7 +383,7 @@ void NextGenKickAudioProcessorEditor::paint(juce::Graphics& g) {
     for (auto* s : { &atkDecaySlider, &atkCurveSlider, &atkToneSlider, &atkHPFSlider, &atkLevelSlider, &atkPanSlider, &atkPitchSlider, &atkPWSlider }) drawLabel(*s, ((InfoBarSlider*)s)->nameEN);
     for (auto* s : { &pStartSlider, &pEndSlider, &pDecaySlider, &pCurveSlider, &pGlideSlider, &bDecaySlider, &bCurveSlider, &bRatioSlider, &bFilterSlider, &bLevelSlider, &bPanSlider }) drawLabel(*s, ((InfoBarSlider*)s)->nameEN);
     for (auto* s : { &subNoteSlider, &subFineSlider, &subDecaySlider, &subCurveSlider, &subLevelSlider, &subPhaseSlider, &subAntiClickSlider, &subPanSlider }) drawLabel(*s, ((InfoBarSlider*)s)->nameEN);
-    for (auto* s : { &mDriveSlider, &mOutSlider, &mWidthSlider, &mReleaseSlider, &mPhaseSlider, &limThreshSlider, &limLookSlider }) drawLabel(*s, ((InfoBarSlider*)s)->nameEN);
+    for (auto* s : { &mDriveSlider, &mOutSlider, &mWidthSlider, &mReleaseSlider, &mPhaseSlider, &limThreshSlider, &limLookSlider, &masterLPFSlider }) drawLabel(*s, ((InfoBarSlider*)s)->nameEN);
 
     // Scopes
     g.setColour(juce::Colours::black); g.fillRect(areaStaticScope); g.fillRect(areaRealtimeScope);
@@ -370,6 +421,22 @@ void NextGenKickAudioProcessorEditor::paint(juce::Graphics& g) {
     g.setColour(juce::Colours::white); g.setFont(12.0f);
     g.drawText("STATIC PREVIEW", areaStaticScope.getX() + 5, areaStaticScope.getY() + 5, 100, 20, juce::Justification::left);
     g.drawText("REALTIME OUT", areaRealtimeScope.getX() + 5, areaRealtimeScope.getY() + 5, 100, 20, juce::Justification::left);
+
+    // --- Draw Logo (Image) ---
+    // CHANGED: Maximize logo in remaining space
+    g.setColour(juce::Colours::black);
+    g.fillRect(areaLogo);
+
+    if (logoImage.isValid())
+    {
+        g.drawImage(logoImage, areaLogo.toFloat(), juce::RectanglePlacement::centred);
+    }
+    else
+    {
+        g.setColour(juce::Colours::cyan.withAlpha(0.8f));
+        g.setFont(juce::Font("Impact", 24.0f, juce::Font::bold));
+        g.drawText("NEXT GEN KICK", areaLogo, juce::Justification::centred);
+    }
 }
 
 void NextGenKickAudioProcessorEditor::resized() {
@@ -379,7 +446,14 @@ void NextGenKickAudioProcessorEditor::resized() {
 
     auto headerArea = bounds.removeFromTop(40);
     titleLabel.setBounds(headerArea.removeFromLeft(200).reduced(5));
+
+    // Top Right Controls
+    loadButton.setBounds(headerArea.removeFromRight(50).reduced(5));
+    saveButton.setBounds(headerArea.removeFromRight(50).reduced(5));
     presetCombo.setBounds(headerArea.removeFromRight(150).reduced(5));
+    randomButton.setBounds(headerArea.removeFromRight(80).reduced(5));
+    redoButton.setBounds(headerArea.removeFromRight(60).reduced(5));
+    undoButton.setBounds(headerArea.removeFromRight(60).reduced(5));
 
     auto infoArea = bounds.removeFromTop(30);
     infoBar.setBounds(infoArea.reduced(2));
@@ -420,14 +494,24 @@ void NextGenKickAudioProcessorEditor::resized() {
     layoutKnob(bDecaySlider, bodyPlace, 0, 2); layoutKnob(bCurveSlider, bodyPlace, 1, 2); layoutKnob(bFilterSlider, bodyPlace, 2, 2);
     layoutKnob(bRatioSlider, bodyPlace, 0, 3); layoutKnob(bPanSlider, bodyPlace, 1, 3);
 
-    subTrackButton.setBounds(subPlace.removeFromTop(25).removeFromLeft(100).reduced(2)); subPlace.removeFromTop(5);
+    // Sub Section Layout
+    auto subTopRow = subPlace.removeFromTop(25);
+    subTrackButton.setBounds(subTopRow.removeFromLeft(70).reduced(2));
+    subPlace.removeFromTop(5);
+
     layoutKnob(subLevelSlider, subPlace, 0, 0); layoutKnob(subDecaySlider, subPlace, 1, 0); layoutKnob(subCurveSlider, subPlace, 2, 0);
     layoutKnob(subNoteSlider, subPlace, 0, 1); layoutKnob(subFineSlider, subPlace, 1, 1); layoutKnob(subPhaseSlider, subPlace, 2, 1);
     layoutKnob(subAntiClickSlider, subPlace, 0, 2); layoutKnob(subPanSlider, subPlace, 1, 2);
 
     satTypeCombo.setBounds(masterPlace.removeFromTop(25).reduced(2));
-    hqModeButton.setBounds(masterPlace.removeFromTop(20).reduced(2).removeFromLeft(100)); masterPlace.removeFromTop(5);
+    osCombo.setBounds(masterPlace.removeFromTop(25).reduced(2));
     layoutKnob(mDriveSlider, masterPlace, 0, 0); layoutKnob(mOutSlider, masterPlace, 1, 0); layoutKnob(mWidthSlider, masterPlace, 2, 0);
     layoutKnob(limThreshSlider, masterPlace, 0, 1); layoutKnob(limLookSlider, masterPlace, 1, 1); layoutKnob(mPhaseSlider, masterPlace, 2, 1);
-    layoutKnob(mReleaseSlider, masterPlace, 0, 2);
+    layoutKnob(mReleaseSlider, masterPlace, 0, 2); layoutKnob(masterLPFSlider, masterPlace, 1, 2);
+
+    // CHANGED: Maximize Logo Area (Fill remaining space below knobs)
+    int knobsHeight = 3 * 95;
+    auto logoSpace = masterPlace;
+    logoSpace.removeFromTop(knobsHeight + 10); // Skip knobs + padding
+    areaLogo = logoSpace.reduced(5); // Use all remaining space
 }

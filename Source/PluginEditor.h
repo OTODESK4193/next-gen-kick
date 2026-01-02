@@ -67,7 +67,6 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
 
-    // 【追加】クリック検知用
     void mouseUp(const juce::MouseEvent& e) override;
 
 private:
@@ -85,6 +84,14 @@ private:
     // GUI Components
     juce::Label titleLabel;
     juce::ComboBox presetCombo;
+    juce::TextButton randomButton;
+
+    // New Buttons
+    juce::TextButton undoButton;
+    juce::TextButton redoButton;
+    juce::TextButton saveButton;
+    juce::TextButton loadButton;
+
     juce::Label infoBar;
 
     // Attack
@@ -101,14 +108,16 @@ private:
     // Sub
     InfoBarSlider subNoteSlider, subFineSlider;
     InfoBarButton subTrackButton;
+    // subModeCombo Removed
     InfoBarSlider subDecaySlider, subCurveSlider, subLevelSlider;
     InfoBarSlider subPhaseSlider, subAntiClickSlider, subPanSlider;
 
     // Master
     InfoBarCombo satTypeCombo;
-    InfoBarButton hqModeButton;
+    InfoBarCombo osCombo;
     InfoBarSlider mDriveSlider, mOutSlider, mWidthSlider;
     InfoBarSlider mReleaseSlider, mPhaseSlider, limThreshSlider, limLookSlider;
+    InfoBarSlider masterLPFSlider;
 
     // Attachments
     using SliderAtt = juce::AudioProcessorValueTreeState::SliderAttachment;
@@ -116,8 +125,8 @@ private:
     using ButtonAtt = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
     std::vector<std::unique_ptr<SliderAtt>> sliderAttachments;
-    std::unique_ptr<ComboAtt> atkWaveAtt, bodyWaveAtt, satTypeAtt;
-    std::unique_ptr<ButtonAtt> subTrackAtt, hqModeAtt;
+    std::unique_ptr<ComboAtt> atkWaveAtt, bodyWaveAtt, satTypeAtt, osAtt;
+    std::unique_ptr<ButtonAtt> subTrackAtt;
 
     // Visualization
     juce::Path oscPath;
@@ -127,16 +136,17 @@ private:
     // Layout Areas
     juce::Rectangle<int> areaAtkSection, areaBodySection, areaSubSection, areaMasterSection;
     juce::Rectangle<int> areaOutputMeter;
+    juce::Rectangle<int> areaLogo;
 
     float currentOutputLevel = 0.0f;
     std::vector<float> scopeData;
     int scopeWriteIndex = 0;
 
-    // リアルタイム更新用
     InfoBarSlider* hoveringSlider = nullptr;
-
-    // デフォルトメッセージ保持用
     juce::String defaultInfoText;
+
+    // ▼▼▼ 画像用変数 ▼▼▼
+    juce::Image logoImage;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NextGenKickAudioProcessorEditor)
 };
