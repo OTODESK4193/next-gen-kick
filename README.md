@@ -1,224 +1,57 @@
-\# NEXT GEN KICK
+NEXT GEN KICK v1.2.0
+プロフェッショナル・キックドラム・シンセサイザー・プラグイン
 
+3層構造（Attack/Body/Sub）、100種類のプリセット、そして最新の音響工学に基づいたADAAサチュレーションを搭載した高品質な無料キック専用音源です。
 
+リポジトリ: https://github.com/OTODESK4193/next-gen-kick
 
-\*\*プロフェッショナル・キックドラム・シンセサイザー・プラグイン\*\*
+最新版(v1.2.0)ダウンロード: Releases（https://github.com/OTODESK4193/next-gen-kick/releases）
 
+[日本語マニュアルPDF](./NEXT_GEN_KICK2.0_ユーザーマニュアル.pdf)
 
+✨ v1.2.0 アップデート内容
+高精度ADAAサチュレーション: 反導関数（Anti-Derivative）を用いたアンチエイリアシング技術を実装。深い歪みでも折り返し雑音を極限まで抑制します。
 
-3層構造（Attack/Body/Sub）、100種類のプリセット、11種類のサチュレーションを搭載した高品質な無料キック音源です。
+PolyBLEPオシレーター: 波形生成レベルでのアンチエイリアシングを適用。よりクリーンな高域特性を実現しました。
 
-https://github.com/OTODESK4193/next-gen-kick
+最高8倍オーバーサンプリング: 「Ultra」モードを搭載し、さらなる高音質での書き出しが可能に。
 
-- ツール本体: [ダウンロード](https://github.com/OTODESK4193/next-gen-kick/releases/tag/v1.0.0)
-- マニュアルPDF: [マニュアル](./NEXT_GEN_KICK_manual.pdf)
+TPTフィルター: 位相特性に優れたTopology-Preserving Transformフィルターを採用。
 
+ユーザーマニュアル刷新: 詳細な日本語マニュアル（PDF）を同梱。
 
+🛠 特徴
+3層サウンドエンジン: Attack（アタック）、Body（ボディ）、Sub（サブ）を個別に合成・制御。
 
-![ツールのスクリーンショット](Next_Gen_Kick_screenshot.jpg)
+11種類のサチュレーション: Soft Tanh, Hard Clip, Triode, Tape, Wavefold, JFET, BJT, Exciterなど、ADAA技術を適用した多彩な質感。
 
+物理モデリング: Bessel関数や膜理論を応用した、芯のあるピッチスイープ。
 
+リアルタイム・ビジュアライザー: 各レイヤーの干渉を視覚的に確認可能。
 
----
+ルックアヘッド・リミッター: トランジェントを潰さず、確実にピークを保護。
 
+🚀 インストール方法
+Windows
+Releases から最新の ZIP ファイルをダウンロード。https://github.com/OTODESK4193/next-gen-kick/releases
 
+右クリック → 「すべて展開」。
 
-\## ✨ 特徴
+展開された Next Gen Kick.vst3 を VST3 フォルダにコピー。
 
+C:\Program Files\Common Files\VST3\
 
+DAWでプラグインを再スキャンしてください。
 
-\- \*\*3層サウンドエンジン\*\*: Attack（アタック）、Body（ボディ）、Sub（サブ）の独立制御
+📜 ライセンス
+このプロジェクトは GNU General Public License v3.0 の下でライセンスされています。 詳細は LICENSE ファイルを参照してください。
 
-\- \*\*100種類のプリセット\*\*: EDM、ハウス、トラップ、ハードコア、ヴィンテージなど
+サードパーティ
+JUCE Framework: [Open Source - GPLv3]
 
-\- \*\*11種類のサチュレーション\*\*: Soft Tanh、Hard Clip、Triode、Tape、Wavefoldなど
+🙏 クレジット / お問い合わせ
+開発者: OTODESK
 
-\- \*\*物理モデリング\*\*: Von Karman膜理論による張力シミュレーション
+X (Twitter): @kijyoumusic
 
-\- \*\*高品質モード\*\*: 2倍オーバーサンプリング＆アンチエイリアシング
-
-\- \*\*リアルタイム波形表示\*\*: 各レイヤーを色分けして個別表示
-
-\- \*\*ルックアヘッドリミッター\*\*: トランジェント保護＆クリッピング防止
-
-\- \*\*MIDIキートラッキング\*\*: Subレイヤーが音程追従可能
-
-
-
----
-
-
-\### インストール方法
-
-
-
-\#### Windows
-
-1\. ZIPファイルをダウンロード
-
-2\. 右クリック → 「すべて展開」
-
-3\. `Next Gen Kick.vst3` フォルダを `C:\\Program Files\\Common Files\\VST3\\` にコピー
-
-4\. DAWでプラグインを再スキャン
-
-
-
-
-\## 📖 使い方
-
-
-
-\### 基本的なワークフロー
-
-1\. プリセットを選択（100種類から）
-
-2\. Body の P.End で基音を調整
-
-3\. Attack で質感を調整
-
-4\. Master の Distortion で歪みを追加
-
-5\. Volume と Width で最終調整
-
-
-
-\### 詳しい使い方
-
-\[完全マニュアル（日本語）](docs/manual\_ja.md)
-
-
-
-\## 🎛️ パラメーター概要
-
-
-
-\### Attack セクション
-
-クリック音を生成します。
-
-\- \*\*Type\*\*: 8種類の波形（ノイズ、矩形波、ノコギリ波など）
-
-\- \*\*Decay/Curve\*\*: エンベロープの形状
-
-\- \*\*Tone/Hi-Pass\*\*: フィルター
-
-
-
-\### Body セクション
-
-キックの本体（ピッチスイープ）を生成します。
-
-\- \*\*Type\*\*: 5種類の波形（サイン波、ベッセル、矩形波など）
-
-\- \*\*Pitch Start/End\*\*: スイープ範囲
-
-\- \*\*Tension\*\*: 膜の張力シミュレーション
-
-
-
-\### Sub セクション
-
-超低域のサブベースを生成します。
-
-\- \*\*Key Track\*\*: MIDIノート追従のON/OFF
-
-\- \*\*Note/Fine\*\*: ピッチ調整
-
-\- \*\*Phase\*\*: Body との位相関係
-
-
-
-\### Master セクション
-
-最終的な音質調整とリミッター。
-
-\- \*\*Distortion\*\*: 11種類のサチュレーション
-
-\- \*\*Drive\*\*: 歪みの深さ
-
-\- \*\*Width\*\*: ステレオ幅
-
-
-
----
-
-
-
-\## 🐛 トラブルシューティング
-
-
-
-\### プラグインが表示されない
-
-\- VST3フォルダに正しくコピーされているか確認
-
-\- DAWでプラグイン再スキャンを実行
-
-\- DAWを再起動
-
-
-
-
----
-
-
-
-\## 📜 ライセンス
-
-
-
-このプロジェクトは \*\*GNU General Public License v3.0\*\* の下でライセンスされています。
-
-詳細は \[LICENSE](LICENSE) ファイルを参照してください。
-
-
-
-\### サードパーティライセンス
-
-**JUCE Framework**: [Open Source - AGPLv3]
-https://github.com/juce-framework/JUCE
-
-
-
----
-
-
-
-\## 🙏 クレジット
-
-
-
-\*\*開発者\*\*: OTODESK  
-
-\*\*X (Twitter)\*\*: \[@kijyoumusic](https://x.com/kijyoumusic)
-
-
-
-このプラグインを気に入っていただけたら：
-
-\- ⭐ このリポジトリにスターをつける
-
-\- 🐦 X/Twitterでフォロー
-
-\- 💬 あなたの作品をシェア
-
-
-
-していただけると大変嬉しいです！
-
-
-
----
-
-
-
-
-
-
-
-
-
-
-
-
+このプラグインがあなたの楽曲制作の助けになれば幸いです。 バグ報告や改善の提案は、GitHubのIssuesまたはXまでお寄せください！
