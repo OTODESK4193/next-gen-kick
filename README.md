@@ -56,8 +56,10 @@ JUCE Framework: [Open Source - GPLv3]
 開発者: OTODESK
 
 X (Twitter): @kijyoumusic
+[![X](https://img.shields.io/badge/X-%40kijyoumusic-black?logo=x&logoColor=white)](https://x.com/kijyoumusic)
 
 このプラグインがあなたの楽曲制作の助けになれば幸いです。 バグ報告や改善の提案は、GitHubのIssuesまたはXまでお寄せください！
+
 
 
 
