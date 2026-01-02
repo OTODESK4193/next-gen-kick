@@ -7,7 +7,7 @@ NEXT GEN KICK v1.2.0
 
 最新版(v1.2.0)ダウンロード: Releases（https://github.com/OTODESK4193/next-gen-kick/releases）
 
-[日本語マニュアルPDF](./NEXT_GEN_KICK2.0_ユーザーマニュアル.pdf)
+[日本語マニュアルPDF](./NEXT%20GEN%20KICK2.0%20ユーザーマニュアル.pdf)
 
 ✨ v1.2.0 アップデート内容
 高精度ADAAサチュレーション: 反導関数（Anti-Derivative）を用いたアンチエイリアシング技術を実装。深い歪みでも折り返し雑音を極限まで抑制します。
@@ -55,3 +55,4 @@ JUCE Framework: [Open Source - GPLv3]
 X (Twitter): @kijyoumusic
 
 このプラグインがあなたの楽曲制作の助けになれば幸いです。 バグ報告や改善の提案は、GitHubのIssuesまたはXまでお寄せください！
+
