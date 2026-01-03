@@ -109,10 +109,12 @@ NextGenKickAudioProcessorEditor::NextGenKickAudioProcessorEditor(NextGenKickAudi
     presetCombo.clear();
 
     for (int i = 0; i < audioProcessor.presetList.size(); ++i) {
-        if (i == 0) presetCombo.addSectionHeading("--- MODERN KICKS ---");
-        else if (i == 50) presetCombo.addSectionHeading("--- VINTAGE & DISCO ---");
-        else if (i == 70) presetCombo.addSectionHeading("--- SNARES ---");
-        else if (i == 80) presetCombo.addSectionHeading("--- TOMS ---");
+        // インデックス番号を新しいプリセット数に合わせて修正
+        if (i == 0)       presetCombo.addSectionHeading("--- MODERN KICKS ---");
+        else if (i == 48) presetCombo.addSectionHeading("--- VINTAGE KICKS ---");
+        else if (i == 82) presetCombo.addSectionHeading("--- SNARE & TOM ---");
+        else if (i == 102) presetCombo.addSectionHeading("--- HAT ---");
+        else if (i == 110) presetCombo.addSectionHeading("--- FX & OTHERS ---");
 
         presetCombo.addItem(audioProcessor.presetList[i].name, i + 1);
     }
