@@ -8,7 +8,7 @@ NEXT GEN KICK v1.2.1
 
 リポジトリ: https://github.com/OTODESK4193/next-gen-kick
 
-最新版(v1.2.0)ダウンロード: Releases　https://github.com/OTODESK4193/next-gen-kick/releases/tag/v1.2.0
+最新版(v1.2.1)ダウンロード: Releases　https://github.com/OTODESK4193/next-gen-kick/releases/tag/v1.2.1
 
 [日本語マニュアルPDF](./NEXT%20GEN%20KICK2.0%20ユーザーマニュアル.pdf)
 
@@ -59,6 +59,7 @@ X (Twitter): @kijyoumusic
 [![X](https://img.shields.io/badge/X-%40kijyoumusic-black?logo=x&logoColor=white)](https://x.com/kijyoumusic)
 
 このプラグインがあなたの楽曲制作の助けになれば幸いです。 バグ報告や改善の提案は、GitHubのIssuesまたはXまでお寄せください！
+
 
 
 
