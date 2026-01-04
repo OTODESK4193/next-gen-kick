@@ -122,6 +122,7 @@ private:
     std::unique_ptr<juce::dsp::Oversampling<float>> oversampler;
     std::mutex oversamplerMutex;
     int currentOsMode = -1;
+    int currentReportedLatency = 0; // Latency change detection
 
     juce::AudioBuffer<float> satBuffer;
 
@@ -160,6 +161,7 @@ private:
 
     void updateParameters();
     void updateOversampler(int mode, int samplesPerBlock);
+    void updateLatency(int lookaheadSamples);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(NextGenKickAudioProcessor)
 };

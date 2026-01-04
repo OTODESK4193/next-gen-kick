@@ -72,8 +72,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout NextGenKickAudioProcessor::c
     createFloat("masterPhase", "Global Phase Reset", 0.0f, 360.0f, 0.0f);
     createFloat("limThreshold", "Limiter Threshold (dB)", -12.0f, 0.0f, 0.0f);
     createFloat("limLookahead", "Limiter Look-ahead (ms)", 0.0f, 5.0f, 1.0f);
-
-    // CHANGED: Master LPF Range extended to 20000.0f
     createFloat("masterLPF", "Master LowPass", 60.0f, 20000.0f, 20000.0f);
 
     juce::StringArray osModes{ "Off", "2x (Standard)", "4x (High)", "8x (Ultra)" };
@@ -448,14 +446,28 @@ void NextGenKickAudioProcessor::updateOversampler(int mode, int samplesPerBlock)
 
     if (mode <= 0) {
         oversampler.reset();
-        setLatencySamples(0);
     }
     else {
         // mode 1=2x(factor=1), 2=4x(factor=2), 3=8x(factor=3)
         oversampler = std::make_unique<juce::dsp::Oversampling<float>>(2, mode, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, true);
         oversampler->initProcessing(samplesPerBlock);
         oversampler->reset();
-        setLatencySamples(oversampler->getLatencyInSamples());
+    }
+    // Latency is now updated in updateLatency() called from processBlock
+}
+
+void NextGenKickAudioProcessor::updateLatency(int lookaheadSamples) {
+    int osLatency = 0;
+    {
+        std::lock_guard<std::mutex> lock(oversamplerMutex);
+        if (oversampler) osLatency = (int)oversampler->getLatencyInSamples();
+    }
+
+    int totalLatency = osLatency + lookaheadSamples;
+
+    if (totalLatency != currentReportedLatency) {
+        currentReportedLatency = totalLatency;
+        setLatencySamples(totalLatency);
     }
 }
 
@@ -490,7 +502,6 @@ void NextGenKickAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
     filterBodyLP.prepare(spec); filterBodyLP.setType(juce::dsp::StateVariableTPTFilterType::lowpass); filterBodyLP.setResonance(0.5f);
 
     // Master LPF Init (4-stage cascade)
-    // CHANGED: Q = 0.5 (Critically Damped) for smoother response
     for (auto& f : filterMasterLP_L) { f.prepare(spec); f.setType(juce::dsp::StateVariableTPTFilterType::lowpass); f.setResonance(0.5f); }
     for (auto& f : filterMasterLP_R) { f.prepare(spec); f.setType(juce::dsp::StateVariableTPTFilterType::lowpass); f.setResonance(0.5f); }
 
@@ -556,17 +567,35 @@ void NextGenKickAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
     int lookaheadSamples = std::max(0, (int)(lookaheadMs * 0.001f * currentSampleRate));
     lookaheadSamples = std::min(lookaheadSamples, limBufferSize - 2);
 
+    // Update reported latency (OS + Limiter)
+    updateLatency(lookaheadSamples);
+
+    // --- MIDI Processing with Sample Accuracy ---
+    int triggerSample = -1;
     for (const auto metadata : midiMessages) {
         if (metadata.getMessage().isNoteOn()) {
+            triggerSample = metadata.samplePosition;
             lastMidiNote = metadata.getMessage().getNoteNumber();
+            // Note: We don't reset state here, we do it inside the sample loop at triggerSample
+        }
+    }
+
+    auto* satL = satBuffer.getWritePointer(0);
+    auto* satR = satBuffer.getWritePointer(1);
+
+    float aPitVal = 0, aDecVal = 0, aCurVal = 0, aHPFVal = 0, aToneVal = 0, aLevVal = 0, aPanVal = 0, aPWVal = 0;
+    float pStaVal = 0, pEndVal = 0, pDecVal = 0, pGliVal = 0, pCurVal = 0, bRatVal = 0, bLevVal = 0, bDecVal = 0, bCurVal = 0, bPanVal = 0, bFiltVal = 0;
+    float sNotVal = 0, sDecV = 0, sCurV = 0, sLevV = 0, sPanV = 0, mDriVal = 0, mOutVal = 0, mRelVal = 0, lThrDB = 0, mLPFVal = 0;
+    double sBaseHz = 0, sFinalHz = 0;
+
+    for (int i = 0; i < numSamples; ++i) {
+        // Check for Note On trigger at this exact sample
+        if (i == triggerSample) {
             isNoteActive = true;
             noteOnTime = 0.0;
             subAttackCounter = 0;
 
             filterAtkHP.reset(); filterAtkLP.reset(); filterBodyLP.reset();
-            // CHANGED: REMOVED Master LPF Reset to prevent clicks
-            // for(auto& f : filterMasterLP_L) f.reset();
-            // for(auto& f : filterMasterLP_R) f.reset();
 
             double sPh = s_masterPhase.getTargetValue() / 360.0 * twoPi;
             phaseAtk = phaseBody = sPh;
@@ -582,19 +611,13 @@ void NextGenKickAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
 
             for (auto& s : satStates) s.reset();
         }
-    }
 
-    if (!isNoteActive) { buffer.clear(); return; }
+        if (!isNoteActive) {
+            satL[i] = 0.0f;
+            satR[i] = 0.0f;
+            continue;
+        }
 
-    auto* satL = satBuffer.getWritePointer(0);
-    auto* satR = satBuffer.getWritePointer(1);
-
-    float aPitVal = 0, aDecVal = 0, aCurVal = 0, aHPFVal = 0, aToneVal = 0, aLevVal = 0, aPanVal = 0, aPWVal = 0;
-    float pStaVal = 0, pEndVal = 0, pDecVal = 0, pGliVal = 0, pCurVal = 0, bRatVal = 0, bLevVal = 0, bDecVal = 0, bCurVal = 0, bPanVal = 0, bFiltVal = 0;
-    float sNotVal = 0, sDecV = 0, sCurV = 0, sLevV = 0, sPanV = 0, mDriVal = 0, mOutVal = 0, mRelVal = 0, lThrDB = 0, mLPFVal = 0;
-    double sBaseHz = 0, sFinalHz = 0;
-
-    for (int i = 0; i < numSamples; ++i) {
         aPitVal = s_atkPitch.getNextValue(); aDecVal = s_atkDecay.getNextValue(); aCurVal = s_atkCurve.getNextValue();
         aHPFVal = s_atkHPF.getNextValue(); aToneVal = s_atkTone.getNextValue(); aLevVal = s_atkLevel.getNextValue();
         aPanVal = s_atkPan.getNextValue(); aPWVal = s_atkPW.getNextValue();
@@ -616,7 +639,6 @@ void NextGenKickAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
         if (++crCounter >= 8) {
             crCounter = 0;
             filterAtkHP.setCutoffFrequency(aHPFVal); filterAtkLP.setCutoffFrequency(aToneVal); filterBodyLP.setCutoffFrequency(bFiltVal);
-            // Update all 4 stages of Master LPF
             for (auto& f : filterMasterLP_L) f.setCutoffFrequency(mLPFVal);
             for (auto& f : filterMasterLP_R) f.setCutoffFrequency(mLPFVal);
         }
@@ -691,7 +713,7 @@ void NextGenKickAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
         phaseAtk += twoPi * dtA; if (phaseAtk >= twoPi) phaseAtk -= twoPi;
         noteOnTime += (double)invSR;
 
-        if (subEnvBase < 0.0001f && bodyEnv < 0.0001f && noteOnTime >(double)mRelVal) { isNoteActive = false; break; }
+        if (subEnvBase < 0.0001f && bodyEnv < 0.0001f && noteOnTime >(double)mRelVal) { isNoteActive = false; }
     }
 
     juce::dsp::AudioBlock<float> satBlock(satBuffer);
@@ -736,7 +758,6 @@ void NextGenKickAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, j
         float driveR = srcR[i] * driveComp * mOutVal;
 
         // Apply Master LPF (Stereo, 4-stage cascade = 48dB/oct)
-        // Bypass if frequency is very high (near 20k)
         if (mLPFVal < 19950.0f) {
             for (auto& f : filterMasterLP_L) driveL = f.processSample(0, driveL);
             for (auto& f : filterMasterLP_R) driveR = f.processSample(0, driveR);
