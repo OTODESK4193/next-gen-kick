@@ -1,7 +1,7 @@
 NEXT GEN KICK v1.2.1
 プロフェッショナル・キックドラム・シンセサイザー・プラグイン
 
-![Downloads](https://img.shields.io/github/downloads/ユーザー名/リポジトリ名/total.svg)
+![Downloads](https://img.shields.io/github/downloads/OTODESK4193/next-gen-kick/total.svg)
 
 3層構造（Attack/Body/Sub）、100種類以上のプリセット、そして最新の音響工学に基づいたADAAサチュレーションを搭載した高品質な無料キック専用音源です。
 
@@ -61,6 +61,7 @@ X (Twitter): @kijyoumusic
 [![X](https://img.shields.io/badge/X-%40kijyoumusic-black?logo=x&logoColor=white)](https://x.com/kijyoumusic)
 
 このプラグインがあなたの楽曲制作の助けになれば幸いです。 バグ報告や改善の提案は、GitHubのIssuesまたはXまでお寄せください！
+
 
 
 
