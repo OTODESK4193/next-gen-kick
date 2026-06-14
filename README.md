@@ -48,11 +48,10 @@ C:\Program Files\Common Files\VST3\
 
 DAWでプラグインを再スキャンしてください。
 
-📜 ライセンス
-このプロジェクトは GNU General Public License v3.0 の下でライセンスされています。 詳細は LICENSE ファイルを参照してください。
+### ライセンスについて
+このプロジェクトは **GNU Affero General Public License v3.0 (AGPLv3)** のもとで公開されています。詳細は [LICENSE](LICENSE) ファイルを作成してください。
 
-サードパーティ
-JUCE Framework: [Open Source - GPLv3]
+本プラグインは **JUCE 8** フレームワークを使用して開発されています。JUCE 8のオープンソースライセンス規約に基づき、本ソフトウェアのソースコードおよびバイナリにはAGPLv3が適用されます。
 
 🙏 クレジット / お問い合わせ
 開発者: OTODESK
